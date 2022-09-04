@@ -3,53 +3,41 @@ module App
 open Elmish
 open Elmish.React
 open Feliz
-open System
 
 type Todo = {
-  Id: Guid
+  Id: int
   Description: string
   Completed: bool
 }
 
 type TodoBeingEdited = {
-  Id: Guid
+  Id: int
   Description: string
-  SaveDisabled: bool
 }
-
-type Filter =
-  | All
-  | NotCompleted
-  | Completed
 
 type State = { 
   NewTodo : string
   TodoList: Todo list
   TodoBeingEdited : TodoBeingEdited option
-  Filter: Filter
 }
 
 type Msg =
   | SetNewTodo of string
   | AddNewTodo
-  | ToggleCompleted of Guid
-  | DeleteTodo of Guid
+  | ToggleCompleted of int
+  | DeleteTodo of int
   | CancelEdit
   | ApplyEdit
-  | StartEditingTodo of Guid
+  | StartEditingTodo of int
   | SetEditedDescription of string
-  | ShowAll
-  | ShowCompleted
-  | ShowNotCompleted
 
 let init() =
     { 
       NewTodo = "" 
       TodoList = [ 
-        { Id = Guid.NewGuid(); Description= "Learn F#"; Completed = false }
-        { Id = Guid.NewGuid(); Description = "Learn Elmish"; Completed = false } ]
+        { Id=1; Description= "Learn F#"; Completed = false }
+        { Id = 2; Description = "Learn Elmish"; Completed = false } ]
       TodoBeingEdited = None
-      Filter = NotCompleted
     }
 
 let update (msg: Msg) (state: State) =
@@ -57,7 +45,7 @@ let update (msg: Msg) (state: State) =
     | SetNewTodo desc ->
         { state with NewTodo = desc }
 
-    | DeleteTodo (todoId) ->
+    | DeleteTodo todoId ->
         let nextTodoList =
           state.TodoList
           |> List.filter (fun todo -> todo.Id <> todoId)
@@ -80,11 +68,11 @@ let update (msg: Msg) (state: State) =
     | AddNewTodo ->
       let nextTodoId =
         match state.TodoList with
-        | [ ] -> Guid.Empty
+        | [ ] -> 1
         | elems ->
             elems
             |> List.maxBy (fun todo -> todo.Id)
-            |> fun todo -> Guid.NewGuid()
+            |> fun todo -> todo.Id + 1
 
       let nextTodo =
         { Id = nextTodoId
@@ -116,8 +104,7 @@ let update (msg: Msg) (state: State) =
       let nextEditModel =
         state.TodoList
         |> List.tryFind (fun todo -> todo.Id = todoId)
-        |> Option.map (fun todo -> { 
-            Id = todoId; Description = todo.Description; SaveDisabled = true })
+        |> Option.map (fun todo -> { Id = todoId; Description = todo.Description })
 
       { state with TodoBeingEdited = nextEditModel }
 
@@ -141,19 +128,9 @@ let update (msg: Msg) (state: State) =
     | SetEditedDescription newText ->
         let nextEditModel =
           state.TodoBeingEdited
-          |> Option.map (fun todoBeingEdited -> 
-            { todoBeingEdited with Description = newText; SaveDisabled = false })
+          |> Option.map (fun todoBeingEdited -> { todoBeingEdited with Description = newText })
 
         { state with TodoBeingEdited = nextEditModel }
-
-    | ShowAll ->
-        {state with Filter = All}
-
-    | ShowCompleted ->
-        {state with Filter = Completed}
-
-    | ShowNotCompleted ->
-        {state with Filter = NotCompleted}
 
 let inputField (state: State) (dispatch: Msg -> unit) =
   Html.div [
@@ -191,40 +168,6 @@ let div (classes: string list) (children: Fable.React.ReactElement list) =
         prop.children children
     ]
 
-let renderFilterTabs (state: State) (dispatch: Msg -> unit) =
-  div [ "tabs"; "is-toggle"; "is-fullwidth" ] [
-    Html.ul [
-      Html.li [
-        if state.Filter = All then prop.className "is-active"
-        prop.children [
-          Html.a [
-            prop.text "All"
-            prop.onClick (fun _ -> dispatch ShowAll)
-          ]
-        ]
-      ]
-
-      Html.li [
-        if state.Filter = Completed then prop.className "is-active"
-        prop.children [
-          Html.a [
-            prop.text "Completed"
-            prop.onClick (fun _ -> dispatch ShowCompleted)
-          ]
-        ]      
-      ]
-
-      Html.li [
-        if state.Filter = NotCompleted then prop.className "is-active"
-        prop.children [
-          Html.a [
-            prop.onClick (fun _ -> dispatch ShowNotCompleted)
-            prop.text "Not Completed"
-          ]
-        ]    
-      ]
-    ]
-  ]
 
 let renderTodo (todo: Todo) (dispatch: Msg -> unit) =
   div [ "box" ] [
@@ -247,14 +190,6 @@ let renderTodo (todo: Todo) (dispatch: Msg -> unit) =
           ]
 
           Html.button [
-            prop.classes [ "button"; "is-primary" ]
-            prop.onClick (fun _ -> dispatch (StartEditingTodo  todo.Id))
-            prop.children [
-              Html.i [ prop.classes [ "fa"; "fa-edit" ] ]
-            ]
-          ]
-
-          Html.button [
             prop.classes [ "button"; "is-danger" ]
             prop.onClick (fun _ -> dispatch (DeleteTodo todo.Id))
             prop.children [
@@ -272,63 +207,18 @@ let appTitle =
     prop.text "Elmish To-Do List"
   ]
 
-let renderEditForm (todoBeingEdited: TodoBeingEdited) (dispatch: Msg -> unit) =
-  div [ "box" ] [
-    div [ "field"; "is-grouped" ] [
-      div [ "control"; "is-expanded" ] [
-        Html.input [
-          prop.classes [ "input"; "is-medium" ]
-          prop.valueOrDefault todoBeingEdited.Description;
-          prop.onTextChange (SetEditedDescription >> dispatch)
-        ]
-      ]
-
-      div [ "control"; "buttons" ] [
-        Html.button [
-          prop.classes [ "button"; "is-primary"; ]
-          prop.onClick (fun _ -> dispatch ApplyEdit)
-          prop.children [
-            Html.i [ prop.classes ["fa"; "fa-save" ] ]
-          ]
-          prop.disabled todoBeingEdited.SaveDisabled
-        ]
-
-        Html.button [
-          prop.classes ["button"; "is-warning"]
-          prop.onClick (fun _ -> dispatch CancelEdit)
-          prop.children [
-            Html.i [ prop.classes ["fa"; "fa-arrow-right"] ]
-          ]
-        ]
-      ]
-    ]
-  ]
 
 let todoList (state: State) (dispatch: Msg -> unit) =
   Html.ul [
-    prop.children [
-      let todoList = 
-        match state.Filter with
-        | All -> state.TodoList
-        | Completed -> state.TodoList |> List.filter (fun todo -> todo.Completed = true)
-        | NotCompleted -> state.TodoList |> List.filter (fun todo -> todo.Completed = false)
-
-      for todo in todoList ->
-        match state.TodoBeingEdited  with
-        | Some todoBeingEdited when todoBeingEdited.Id = todo.Id ->
-            renderEditForm todoBeingEdited dispatch
-        | otherwise ->
-            renderTodo todo dispatch
-    ]
+    for todo in state.TodoList -> renderTodo todo dispatch
   ]
 
 let render (state: State) (dispatch: Msg -> unit) =
   Html.div [
-    prop.style [ style.padding 50 ]
+    prop.style [ style.padding 20 ]
     prop.children [
       appTitle
       inputField state dispatch
-      renderFilterTabs state dispatch
       todoList state dispatch
     ]
   ]

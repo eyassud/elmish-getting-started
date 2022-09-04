@@ -14,7 +14,6 @@ type Todo = {
 type TodoBeingEdited = {
   Id: Guid
   Description: string
-  SaveDisabled: bool
 }
 
 type Filter =
@@ -116,8 +115,7 @@ let update (msg: Msg) (state: State) =
       let nextEditModel =
         state.TodoList
         |> List.tryFind (fun todo -> todo.Id = todoId)
-        |> Option.map (fun todo -> { 
-            Id = todoId; Description = todo.Description; SaveDisabled = true })
+        |> Option.map (fun todo -> { Id = todoId; Description = todo.Description })
 
       { state with TodoBeingEdited = nextEditModel }
 
@@ -141,8 +139,7 @@ let update (msg: Msg) (state: State) =
     | SetEditedDescription newText ->
         let nextEditModel =
           state.TodoBeingEdited
-          |> Option.map (fun todoBeingEdited -> 
-            { todoBeingEdited with Description = newText; SaveDisabled = false })
+          |> Option.map (fun todoBeingEdited -> { todoBeingEdited with Description = newText })
 
         { state with TodoBeingEdited = nextEditModel }
 
@@ -285,12 +282,11 @@ let renderEditForm (todoBeingEdited: TodoBeingEdited) (dispatch: Msg -> unit) =
 
       div [ "control"; "buttons" ] [
         Html.button [
-          prop.classes [ "button"; "is-primary"; ]
+          prop.classes [ "button"; "is-primary"]
           prop.onClick (fun _ -> dispatch ApplyEdit)
           prop.children [
             Html.i [ prop.classes ["fa"; "fa-save" ] ]
           ]
-          prop.disabled todoBeingEdited.SaveDisabled
         ]
 
         Html.button [

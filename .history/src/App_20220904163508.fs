@@ -116,8 +116,7 @@ let update (msg: Msg) (state: State) =
       let nextEditModel =
         state.TodoList
         |> List.tryFind (fun todo -> todo.Id = todoId)
-        |> Option.map (fun todo -> { 
-            Id = todoId; Description = todo.Description; SaveDisabled = true })
+        |> Option.map (fun todo -> { Id = todoId; Description = todo.Description; SaveDisabled = false })
 
       { state with TodoBeingEdited = nextEditModel }
 
