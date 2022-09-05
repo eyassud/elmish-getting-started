@@ -216,7 +216,7 @@ let renderFilterTabs (state: State) (dispatch: Msg -> unit) =
   div [ Bulma.Tabs; Bulma.IsToggle; Bulma.IsFullwidth ] [
     Html.ul [
       Html.li [
-        if state.Filter = All then prop.className Bulma.IsActive
+        if state.Filter = All then prop.className "is-active"
         prop.children [
           Html.a [
             prop.text "All"
@@ -236,7 +236,7 @@ let renderFilterTabs (state: State) (dispatch: Msg -> unit) =
       ]
 
       Html.li [
-        if state.Filter = NotCompleted then prop.className Bulma.IsActive
+        if state.Filter = NotCompleted then prop.className "is-active"
         prop.children [
           Html.a [
             prop.onClick (fun _ -> dispatch ShowNotCompleted)
@@ -257,7 +257,7 @@ let renderTodo (todo: Todo) (dispatch: Msg -> unit) =
         ]
       ]
 
-      div [ Bulma.Column; Bulma.IsNarrow ] [
+      div [ Bulma.Column; "is-narrow" ] [
         div [ Bulma.Buttons ] [
           Html.button [
             prop.classes [ Bulma.Button; if todo.Completed then Bulma.IsSuccess]

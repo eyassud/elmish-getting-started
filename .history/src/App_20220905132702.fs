@@ -216,7 +216,7 @@ let renderFilterTabs (state: State) (dispatch: Msg -> unit) =
   div [ Bulma.Tabs; Bulma.IsToggle; Bulma.IsFullwidth ] [
     Html.ul [
       Html.li [
-        if state.Filter = All then prop.className Bulma.IsActive
+        if state.Filter = All then prop.className "is-active"
         prop.children [
           Html.a [
             prop.text "All"
@@ -236,7 +236,7 @@ let renderFilterTabs (state: State) (dispatch: Msg -> unit) =
       ]
 
       Html.li [
-        if state.Filter = NotCompleted then prop.className Bulma.IsActive
+        if state.Filter = NotCompleted then prop.className "is-active"
         prop.children [
           Html.a [
             prop.onClick (fun _ -> dispatch ShowNotCompleted)
@@ -250,15 +250,15 @@ let renderFilterTabs (state: State) (dispatch: Msg -> unit) =
 let renderTodo (todo: Todo) (dispatch: Msg -> unit) =
   div [ Bulma.Box ] [
     div [ Bulma.Columns; Bulma.IsMobile; Bulma.IsVcentered ] [
-      div [ Bulma.Column ] [
+      div [ "column" ] [
         Html.p [
-          prop.className Bulma.Subtitle
+          prop.className "subtitle"
           prop.text todo.Description
         ]
       ]
 
-      div [ Bulma.Column; Bulma.IsNarrow ] [
-        div [ Bulma.Buttons ] [
+      div [ "column"; "is-narrow" ] [
+        div [ "buttons" ] [
           Html.button [
             prop.classes [ Bulma.Button; if todo.Completed then Bulma.IsSuccess]
             prop.onClick (fun _ -> dispatch (ToggleCompleted todo.Id))
@@ -276,10 +276,10 @@ let renderTodo (todo: Todo) (dispatch: Msg -> unit) =
           ]
 
           Html.button [
-            prop.classes [ Bulma.Button; "is-danger" ]
+            prop.classes [ "button"; "is-danger" ]
             prop.onClick (fun _ -> dispatch (DeleteTodo todo.Id))
             prop.children [
-              Html.i [ prop.classes [ Bulma.Fa; "fa-times" ] ]
+              Html.i [ prop.classes [ "fa"; "fa-times" ] ]
             ]
           ]
         ]
@@ -298,27 +298,28 @@ let renderEditForm (todoBeingEdited: TodoBeingEdited) (dispatch: Msg -> unit) =
     div [ Bulma.Field; Bulma.IsGrouped ] [
       div [ Bulma.Control; Bulma.IsExpanded ] [
         Html.input [
-          prop.classes [ Bulma.Input; Bulma.IsMedium ]
+          prop.classes [ Bulma.Input; "is-medium" ]
           prop.valueOrDefault todoBeingEdited.Description;
+          //prop.onTextChange  ((SetEditedDescription) todoBeingEdited.Id >> dispatch) //todoBeingEdited.Id
           prop.onTextChange (fun text -> dispatch (SetEditedDescription (text, todoBeingEdited.Id)))
         ]
       ]
 
-      div [ Bulma.Control; Bulma.Buttons ] [
+      div [ Bulma.Control; "buttons" ] [
         Html.button [
-          prop.classes [ Bulma.Button; Bulma.IsPrimary; ]
+          prop.classes [ "button"; "is-primary"; ]
           prop.onClick (fun _ -> dispatch (ApplyEdit todoBeingEdited.Id))
           prop.children [
-            Html.i [ prop.classes [Bulma.Fa; "fa-save" ] ]
+            Html.i [ prop.classes ["fa"; "fa-save" ] ]
           ]
           prop.disabled todoBeingEdited.SaveDisabled
         ]
 
         Html.button [
-          prop.classes [Bulma.Button; Bulma.IsWarning]
+          prop.classes ["button"; "is-warning"]
           prop.onClick (fun _ -> dispatch (CancelEdit todoBeingEdited.Id))
           prop.children [
-            Html.i [ prop.classes [Bulma.Fa; "fa-arrow-right"] ]
+            Html.i [ prop.classes ["fa"; "fa-arrow-right"] ]
           ]
         ]
       ]

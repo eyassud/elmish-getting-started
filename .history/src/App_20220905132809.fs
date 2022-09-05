@@ -216,7 +216,7 @@ let renderFilterTabs (state: State) (dispatch: Msg -> unit) =
   div [ Bulma.Tabs; Bulma.IsToggle; Bulma.IsFullwidth ] [
     Html.ul [
       Html.li [
-        if state.Filter = All then prop.className Bulma.IsActive
+        if state.Filter = All then prop.className "is-active"
         prop.children [
           Html.a [
             prop.text "All"
@@ -236,7 +236,7 @@ let renderFilterTabs (state: State) (dispatch: Msg -> unit) =
       ]
 
       Html.li [
-        if state.Filter = NotCompleted then prop.className Bulma.IsActive
+        if state.Filter = NotCompleted then prop.className "is-active"
         prop.children [
           Html.a [
             prop.onClick (fun _ -> dispatch ShowNotCompleted)
@@ -250,14 +250,14 @@ let renderFilterTabs (state: State) (dispatch: Msg -> unit) =
 let renderTodo (todo: Todo) (dispatch: Msg -> unit) =
   div [ Bulma.Box ] [
     div [ Bulma.Columns; Bulma.IsMobile; Bulma.IsVcentered ] [
-      div [ Bulma.Column ] [
+      div [ "column" ] [
         Html.p [
-          prop.className Bulma.Subtitle
+          prop.className "subtitle"
           prop.text todo.Description
         ]
       ]
 
-      div [ Bulma.Column; Bulma.IsNarrow ] [
+      div [ "column"; "is-narrow" ] [
         div [ Bulma.Buttons ] [
           Html.button [
             prop.classes [ Bulma.Button; if todo.Completed then Bulma.IsSuccess]
@@ -315,7 +315,7 @@ let renderEditForm (todoBeingEdited: TodoBeingEdited) (dispatch: Msg -> unit) =
         ]
 
         Html.button [
-          prop.classes [Bulma.Button; Bulma.IsWarning]
+          prop.classes [Bulma.Button; "is-warning"]
           prop.onClick (fun _ -> dispatch (CancelEdit todoBeingEdited.Id))
           prop.children [
             Html.i [ prop.classes [Bulma.Fa; "fa-arrow-right"] ]
