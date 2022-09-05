@@ -4,7 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="App.fs" />
-    <Compile Include="interactive.fs"/>
+    
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Fable.Browser.XMLHttpRequest" Version="1.2.0" />

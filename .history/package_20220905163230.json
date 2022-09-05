@@ -2,8 +2,7 @@
   "private": true,
   "scripts": {
     "start": "webpack-dev-server",
-    "build": "webpack",
-    "serve": "http-server ./dist"
+    "build": "webpack"
   },
   "dependencies": {
     "react": "^17.0.2",
