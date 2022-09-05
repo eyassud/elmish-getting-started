@@ -141,10 +141,9 @@ let update (msg: Msg) (state: State) =
             let nextTodoList =
               state.TodoList
               |> List.map (fun todo ->
-                  if todo.Id = todoBeingEdited.Id then 
-                    { todo with Description = todoBeingEdited.Description }
-                  else 
-                    todo)
+                  if todo.Id = todoBeingEdited.Id
+                  then { todo with Description = todoBeingEdited.Description }
+                  else todo)
 
             { state with 
                 TodoList = nextTodoList; 

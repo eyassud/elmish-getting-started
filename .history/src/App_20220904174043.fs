@@ -49,7 +49,7 @@ let init() =
         { Id = Guid.NewGuid(); Description= "Learn F#"; Completed = false }
         { Id = Guid.NewGuid(); Description = "Learn Elmish"; Completed = false } ]
       TodoBeingEdited = []
-      Filter = All
+      Filter = NotCompleted
     }
 
 let update (msg: Msg) (state: State) =
@@ -113,14 +113,14 @@ let update (msg: Msg) (state: State) =
         { state with TodoList = nextTodoList }
 
     | StartEditingTodo todoId ->
-        let nextEditModel: TodoBeingEdited option =
-          state.TodoList
-          |> List.tryFind (fun todo -> todo.Id = todoId)
-          |> Option.map (fun todo -> { 
-              Id = todoId; Description = todo.Description; SaveDisabled = true })
-        match nextEditModel with
-        | Some todo -> { state with TodoBeingEdited = state.TodoBeingEdited @ [todo] }
-        | _ -> failwith "Todo was not found"
+      let nextEditModel: TodoBeingEdited option =
+        state.TodoList
+        |> List.tryFind (fun todo -> todo.Id = todoId)
+        |> Option.map (fun todo -> { 
+            Id = todoId; Description = todo.Description; SaveDisabled = true })
+      match nextEditModel with
+      | Some todo -> { state with TodoBeingEdited = state.TodoBeingEdited @ [todo] }
+      | _ -> failwith "Todo was not found"
       
 
     | CancelEdit todoId->
@@ -141,10 +141,9 @@ let update (msg: Msg) (state: State) =
             let nextTodoList =
               state.TodoList
               |> List.map (fun todo ->
-                  if todo.Id = todoBeingEdited.Id then 
-                    { todo with Description = todoBeingEdited.Description }
-                  else 
-                    todo)
+                  if todo.Id = todoBeingEdited.Id
+                  then { todo with Description = todoBeingEdited.Description }
+                  else todo)
 
             { state with 
                 TodoList = nextTodoList; 
@@ -332,19 +331,18 @@ let todoList (state: State) (dispatch: Msg -> unit) =
         | Completed -> state.TodoList |> List.filter (fun todo -> todo.Completed = true)
         | NotCompleted -> state.TodoList |> List.filter (fun todo -> todo.Completed = false)
 
-      for todo in todoList do
-          let todoBeingEdited = 
-            state.TodoBeingEdited 
-            |> List.tryFind (fun t -> t.Id = todo.Id)
-          match todoBeingEdited with
-            | Some todoBeingEdited -> renderEditForm todoBeingEdited dispatch
-            | None -> renderTodo todo dispatch    
+      for todo in todoList ->
+        match state.TodoBeingEdited  with
+        | Some todoBeingEdited when todoBeingEdited.Id = todo.Id ->
+            renderEditForm todoBeingEdited dispatch
+        | otherwise ->
+            renderTodo todo dispatch
     ]
   ]
 
 let render (state: State) (dispatch: Msg -> unit) =
   Html.div [
-    prop.style [ style.padding 20 ]
+    prop.style [ style.padding 50 ]
     prop.children [
       appTitle
       inputField state dispatch
